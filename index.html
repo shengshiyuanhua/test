@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>数字时钟</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+      background: #f5f5f5;
+      color: #333;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    #clock {
+      font-size: clamp(3rem, 12vw, 8rem);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+  <div id="clock">00:00:00</div>
+  <script>
+    const el = document.getElementById("clock");
+    function tick() {
+      const t = new Date();
+      el.textContent = [
+        String(t.getHours()).padStart(2, "0"),
+        String(t.getMinutes()).padStart(2, "0"),
+        String(t.getSeconds()).padStart(2, "0"),
+      ].join(":");
+    }
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
