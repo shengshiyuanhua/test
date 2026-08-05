@@ -24,14 +24,22 @@
       color: #666;
       letter-spacing: 0.08em;
     }
+    #weekday {
+      font-size: clamp(0.9rem, 2.5vw, 1.25rem);
+      color: #888;
+      letter-spacing: 0.12em;
+    }
   </style>
 </head>
 <body>
   <div id="clock">00:00:00</div>
   <div id="date">----/--/--</div>
+  <div id="weekday">星期-</div>
   <script>
     const el = document.getElementById("clock");
     const dateEl = document.getElementById("date");
+    const weekdayEl = document.getElementById("weekday");
+    const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
     function tick() {
       const t = new Date();
       el.textContent = [
@@ -44,6 +52,7 @@
         String(t.getMonth() + 1).padStart(2, "0"),
         String(t.getDate()).padStart(2, "0"),
       ].join("/");
+      weekdayEl.textContent = "星期" + WEEKDAYS[t.getDay()];
     }
     tick();
     setInterval(tick, 1000);
