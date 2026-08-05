@@ -6,4 +6,5 @@
 ## Learned Workspace Facts
 
 - This repo is a zero-dependency static digital clock (`index.html` + short `README.md`); open `index.html` locally to see HH:MM:SS update every second.
-- The clock page title is「组织协作时钟».
+- The clock page title is「组织协作时钟」.
+- The clock supports dark/light theme toggle and 12/24 hour format toggle, with preferences persisted via localStorage.
