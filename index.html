@@ -19,6 +19,12 @@
       font-variant-numeric: tabular-nums;
       letter-spacing: 0.05em;
     }
+    #clock .sep {
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0.25; }
+    }
     #date {
       font-size: clamp(1rem, 3vw, 1.5rem);
       color: #666;
@@ -42,11 +48,10 @@
     const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
     function tick() {
       const t = new Date();
-      el.textContent = [
-        String(t.getHours()).padStart(2, "0"),
-        String(t.getMinutes()).padStart(2, "0"),
-        String(t.getSeconds()).padStart(2, "0"),
-      ].join(":");
+      const hh = String(t.getHours()).padStart(2, "0");
+      const mm = String(t.getMinutes()).padStart(2, "0");
+      const ss = String(t.getSeconds()).padStart(2, "0");
+      el.innerHTML = hh + '<span class="sep">:</span>' + mm + '<span class="sep">:</span>' + ss;
       dateEl.textContent = [
         t.getFullYear(),
         String(t.getMonth() + 1).padStart(2, "0"),
