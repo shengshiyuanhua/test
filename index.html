@@ -5,15 +5,51 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>组织协作时钟</title>
   <style>
+    :root {
+      --bg: #f5f5f5;
+      --text: #333;
+      --text-secondary: #666;
+      --text-muted: #888;
+      --btn-bg: transparent;
+      --btn-hover: #e0e0e0;
+      --btn-active: #d0d0d0;
+      --btn-color: #333;
+    }
+    .dark {
+      --bg: #1a1a2e;
+      --text: #e0e0e0;
+      --text-secondary: #aaa;
+      --text-muted: #777;
+      --btn-hover: #2a2a4e;
+      --btn-active: #3a3a5e;
+      --btn-color: #e0e0e0;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 0.75rem;
       min-height: 100vh;
-      background: #f5f5f5;
-      color: #333;
+      background: var(--bg);
+      color: var(--text);
       font-family: system-ui, -apple-system, sans-serif;
+      transition: background 0.3s, color 0.3s;
     }
+    .toolbar {
+      position: fixed; top: 1rem; right: 1rem;
+      display: flex; gap: 0.5rem;
+    }
+    .toolbar button {
+      width: 2.5rem; height: 2.5rem;
+      border: none; border-radius: 0.5rem;
+      background: var(--btn-bg);
+      color: var(--btn-color);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .toolbar button:hover { background: var(--btn-hover); }
+    .toolbar button:active { background: var(--btn-active); }
     #clock {
       font-size: clamp(3rem, 12vw, 8rem);
       font-variant-numeric: tabular-nums;
@@ -25,33 +61,89 @@
     @keyframes blink {
       50% { opacity: 0.25; }
     }
+    #ampm {
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      opacity: 0.7;
+      margin-left: 0.25em;
+    }
     #date {
       font-size: clamp(1rem, 3vw, 1.5rem);
-      color: #666;
+      color: var(--text-secondary);
       letter-spacing: 0.08em;
+      transition: color 0.3s;
     }
     #weekday {
       font-size: clamp(0.9rem, 2.5vw, 1.25rem);
-      color: #888;
+      color: var(--text-muted);
       letter-spacing: 0.12em;
+      transition: color 0.3s;
     }
   </style>
 </head>
 <body>
-  <div id="clock">00:00:00</div>
+  <div class="toolbar">
+    <button id="btnTheme" title="切换主题">🌓</button>
+    <button id="btnFormat" title="切换时制" style="font-size:0.85rem;font-weight:bold;">24</button>
+  </div>
+  <div id="clock">
+    00:00:00<span id="ampm"></span>
+  </div>
   <div id="date">----/--/--</div>
   <div id="weekday">星期-</div>
   <script>
-    const el = document.getElementById("clock");
+    const clockEl = document.getElementById("clock");
+    const ampmEl = document.getElementById("ampm");
     const dateEl = document.getElementById("date");
     const weekdayEl = document.getElementById("weekday");
+    const btnTheme = document.getElementById("btnTheme");
+    const btnFormat = document.getElementById("btnFormat");
     const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
+
+    let is24h = true;
+    let isDark = false;
+
+    function applyTheme() {
+      document.documentElement.classList.toggle("dark", isDark);
+      btnTheme.textContent = isDark ? "☀️" : "🌓";
+      localStorage.setItem("clock-theme", isDark ? "dark" : "light");
+    }
+
+    function toggleTheme() {
+      isDark = !isDark;
+      applyTheme();
+    }
+
+    function toggleFormat() {
+      is24h = !is24h;
+      btnFormat.textContent = is24h ? "24" : "12";
+      localStorage.setItem("clock-format", is24h ? "24h" : "12h");
+      tick();
+    }
+
+    // 初始化主题
+    const savedTheme = localStorage.getItem("clock-theme");
+    if (savedTheme === "dark") { isDark = true; applyTheme(); }
+
+    // 初始化时制
+    const savedFormat = localStorage.getItem("clock-format");
+    if (savedFormat === "12h") { is24h = false; btnFormat.textContent = "12"; }
+
+    btnTheme.addEventListener("click", toggleTheme);
+    btnFormat.addEventListener("click", toggleFormat);
+
     function tick() {
       const t = new Date();
-      const hh = String(t.getHours()).padStart(2, "0");
+      let h = t.getHours();
+      let ampm = "";
+      if (!is24h) {
+        ampm = h >= 12 ? " PM" : " AM";
+        h = h % 12 || 12;
+      }
+      const hh = String(h).padStart(2, "0");
       const mm = String(t.getMinutes()).padStart(2, "0");
       const ss = String(t.getSeconds()).padStart(2, "0");
-      el.innerHTML = hh + '<span class="sep">:</span>' + mm + '<span class="sep">:</span>' + ss;
+      clockEl.innerHTML = hh + '<span class="sep">:</span>' + mm + '<span class="sep">:</span>' + ss;
+      ampmEl.textContent = ampm;
       dateEl.textContent = [
         t.getFullYear(),
         String(t.getMonth() + 1).padStart(2, "0"),
